@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mudra Classifier</title>
+  <style>
+     /* Full viewport height and width, flex container to center content */
+     body, html {
+      margin: 0;
+      padding: 0;
+      height: 350vh;
+      display: flex;
+      justify-content: center; /* horizontal center */
+      align-items: center;     /* vertical center */
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #fff;
+      text-align: center;
+      background-image: url('../006EC8B3-AB52-4886-A3DF-ADFA3BC780AD.jpeg');
+      background-size: 80%;
+      background-position:center;
+      background-repeat:no-repeat;
+      background-attachment: fixed;
+      background-blend-mode:overlay;
+      overflow: auto;
+      flex-direction: column; /* Vertical stacking */
+    }
+
+    main {
+      background: rgba(0, 0, 0, 0.6); /* translucent black overlay for readability */
+      border-radius: 12px;
+      padding: 30px 40px;
+      max-width: 700px;
+      width: 90%;
+      box-shadow: 0 0 20px rgba(0, 110, 200, 0.7);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      margin: 0 0 10px 0;
+      color: #571e30;
+      text-shadow: 0 0 8px #571e30;
+    }
+
+    h2 {
+      font-weight: 400;
+      font-size: 1.3rem;
+      margin: 0 0 25px 0;
+      line-height: 1.4;
+    }
+
+    /* Container to hold the video */
+    #webcam-container {
+      width: 640px;
+      height: 480px;
+      border: 3px solid #b54796;
+      border-radius: 10px;
+      overflow: hidden;
+      background-color: black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 0 15px #b54796;
+      margin-bottom: 20px;
+    }
+
+    /* Video fills container but keeps aspect ratio, no cropping */
+    
+    video, canvas {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background-color: black;
+      border-radius: 8px;
+    }
+
+    /* Subtitle emphasis */
+    #subtitle {
+      font-style: bold;
+      margin-bottom: 15px;
+      font-size: 1.1rem;
+      color: #ffffff;
+    }
+
+    /* Instruction text */
+    #instruction {
+      font-weight: 600;
+      font-size: 1.2rem;
+      color: #b54796;
+      text-shadow: 0 0 6px #b54796;
+      margin-top: 10px;
+    }
+
+    /* Style the iframe */
+    #p5-embed {
+      width: 640px;
+      max-width: 100%; /* Ensure it doesn't overflow on smaller screens */
+      height: 480px; /* Adjust height as needed */
+      border: 2px solid #7a9eff;
+      border-radius: 12px;
+      margin-bottom: 20px; /* Add some space below the iframe */
+      box-shadow: 0 0 15px #7a9eff;
+      margin-top: 30px ;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 700px) {
+      #webcam-container {
+        width: 90vw;
+        height: calc(90vw * 3 / 4); /* maintain 4:3 aspect ratio */
+      }
+    }
+    /* Mudra Model Project Flow styling */
+    #project-flow {
+      background: rgba(255, 255, 255, 0.9);
+      color: #222;
+      max-width: 700px;
+      width: 90%;
+      margin: 30px auto 60px auto;
+      padding: 25px 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(181, 71, 150, 0.7);
+      text-align: left;
+      font-size: 1rem;
+      line-height: 1.5;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    #project-flow h3 {
+      color: #b54796;
+      margin-top: 1em;
+      margin-bottom: 0.5em;
+      font-weight: 700;
+      font-size: 1.3rem;
+    }
+
+    #project-flow ul {
+      margin-top: 0;
+      margin-bottom: 1em;
+      padding-left: 1.2em;
+    }
+
+    #project-flow ul li {
+      margin-bottom: 0.4em;
+    }
+
+  </style>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/addons/p5.dom.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/addons/p5.sound.min.js"></script>
+  <script src="https://unpkg.com/ml5@0.12.2/dist/ml5.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <h1>Mudra to Raga Identifier</h1>
+    <h2 id="subtitle">
+      Perform one of these mudras - Arala, Katakamukha, Kartari, Mayura or Kapitta<br />
+      Hold it for a few seconds and LISTEN!
+    </h2>
+    <script src="predict-sketch-audio.js"></script>
+  </main>
+  <iframe id="p5-embed" src="https://editor.p5js.org/tanmayeempccbse/full/2vkQKNU1B"></iframe>>
+  <section id="project-flow">
+    <h3>Mudra Model Project Flow</h3>
+
+    <h4>Dataset Creation</h4>
+    <ul>
+      <li>Collected hand pose images showing different mudras using both left and right hands.</li>
+      <li>Extracted 21 hand keypoints per image (x, y coordinates) using a hand-tracking model.</li>
+      <li>Stored data in a CSV format: 42 columns for keypoints + 1 column for output label (Mudra_Hand format, e.g., Mayura_L).</li>
+    </ul>
+
+    <h4>Data Validation</h4>
+    <ul>
+      <li>Checked for missing or inaccurately plotted keypoints.</li>
+      <li>Ensured correct label formatting and consistency across rows.</li>
+      <li>Identified class imbalance (e.g., fewer samples of katakamukha) and fixed it.</li>
+      <li>Ran data through ChatGPT for quality feedback.</li>
+    </ul>
+
+    <h4>Model Training</h4>
+    <ul>
+      <li>Used the formatted CSV to train a neural network model.</li>
+      <li>Monitored loss values to track model learning.</li>
+      <li>Saved trained models as .json and .bin files.</li>
+    </ul>
+
+    <h4>Model Testing</h4>
+    <ul>
+      <li>Tested the model with new hand keypoint data to verify predictions.</li>
+      <li>Observed inconsistencies across browsers (e.g., the model worked on Firefox but not Chrome).</li>
+      <li>Discovered potential issues with model file parsing and incorrect predictions.</li>
+    </ul>
+
+    <h4>Debugging Phase</h4>
+    <ul>
+      <li>Identified possible causes like:
+        <ul>
+          <li>Invalid or corrupted weight files</li>
+          <li>Incorrect CSV formatting (e.g., confusion between one output column vs. two)</li>
+          <li>Heavy or skipped images during preprocessing</li>
+        </ul>
+      </li>
+      <li>Noted that katakamukha images may have been bypassed due to tracking failures.</li>
+    </ul>
+
+    <h4>Next Steps</h4>
+    <ul>
+      <li>Debugged the image-to-CSV converter script to ensure no images are skipped.</li>
+      <li>Finalised the prediction algorithm and integrated it with Chitta Swarams for real-time interaction.</li>
+    </ul>
+  </section>
+</body>
+</html>
